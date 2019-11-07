@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 )
 
@@ -65,7 +64,7 @@ func onKeyPress() func(string) {
 		}
 
 		// append the new letter to the queue
-		chars = append(chars, letter)
+		chars = append(chars, strings.ToLower(letter))
 
 		// remove the first letter if the length is longer than the max amount
 		if len(chars) > MAX_LETTER_COUNT {
@@ -99,12 +98,17 @@ func sleep() {
 
 // generate the path to the blacklist file
 func blacklistFilePath() string {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		fmt.Println(err)
+	if len(os.Args) < 2 {
+		panic("Please provide the path to your blacklist json file")
 	}
 
-	return filepath.Join(dir, "blacklist.json")
+	path := os.Args[1]
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		panic(err)
+	}
+
+	return path
 }
 
 func main() {
